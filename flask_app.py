@@ -15,7 +15,6 @@ def handle_post():
         json_req = request.json
         user_prompt = extract_user_prompt(request)
         dynamic_context = context_creator.retrieve(user_prompt)
-        logging.error(dynamic_context)
         mod_request = add_dynamic_context(request, dynamic_context)
         res = forward_request(mod_request, "http://127.0.0.1:8081/v1/chat/completions")
         return res.json()
