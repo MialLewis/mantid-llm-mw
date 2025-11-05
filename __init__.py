@@ -1,4 +1,3 @@
-from .mw2 import MiddleWare
+from .flask_app import app
 
-mw = MiddleWare()
-mw.start("0.0.0.0", "8080", "127.0.0.1", "8081")
+app.run(host="0.0.0.0", port=8080)
