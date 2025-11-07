@@ -13,7 +13,7 @@ context_creator = ContextCreator()
 def handle_post():
     if request.method == 'POST':
         json_req = request.json
-        user_prompt = extract_user_prompt(request)
+        user_prompt = extract_prompt_context(request)
         dynamic_context = context_creator.retrieve(user_prompt)
         mod_request = add_dynamic_context(request, dynamic_context)
         res = forward_request(mod_request, "http://127.0.0.1:8081/v1/chat/completions")
@@ -24,14 +24,15 @@ def forward_request(request, url):
     res = requests.post(url=url, headers=request.headers, json=request.json)
     return res
 
-def extract_user_prompt(request):
-    content_str = request.json['messages'][1]['content']
-    content = json.loads(content_str)
-    return content['user prompt']
+def extract_prompt_context(request):
+    content = json.loads(request.json['messages'][1]['content'])
+    prompt_context = json.loads(content['context'])['prompt context']
+    prompt_context.append({'user prompt': content['user prompt']})
+    return json.dumps(prompt_context)
 
 
 def add_dynamic_context(request, dynamic_context):
-    context_str = request.json['messages'][1]['content']
-    mod_context_str = context_str + dynamic_context
-    req_json = request.json['messages'][1]['content'] = mod_context_str
+    content_str = request.json['messages'][1]['content']
+    mod_content_str = content_str + dynamic_context
+    req_json = request.json['messages'][1]['content'] = mod_content_str
     return request
